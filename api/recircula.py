@@ -3,11 +3,11 @@ from tokenize import Double
 from typing import List
 from priority_queue_vec import Priority_queue as pq
 
-path = "recipes.json"
+path = "../Sources/recipes.json"
 with open(path) as file:
     recipes = json.load(file)
 
-path = "ingredients.json"
+path = "../Sources/ingredients.json"
 with open(path) as file:
     ingredients = json.load(file)
 
@@ -50,8 +50,18 @@ def scale_recipes(recipes: List[List], serving: float):
             if recipes[i][-1] != 0:
                 recipes[i][j] *= serving/recipes[i][-1]
 
+def ingredients_to_vector(ingr):
+    my_recipe = []
+    for i in range(len(ingredients)):
+        if ingredients[i] in ingr:
+            my_recipe.append(ingr[ingredients[i]])
+        else:
+            my_recipe.append(0)
 
-def exec(my_recipe: List, recipes: List[List], ingredients: List, k: int, serving: float):
+    return my_recipe
+
+
+def recommend(my_recipe: List, recipes: List[List], ingredients: List, k: int, serving: float):
     scale_recipes(recipes, serving)
     closest_k = k_closest_recipes(my_recipe, recipes, k)
     missing_k = []
@@ -63,13 +73,19 @@ def exec(my_recipe: List, recipes: List[List], ingredients: List, k: int, servin
             if missing_k[i][j] != 0:
                 print("You are missing",
                       missing_k[i][j], "grams of", ingredients[j])
+    return closest_k
 
 
+"""
 my_recipe = []
 for i in range(len(ingredients)):
     if ingredients[i] in ['apples, raw, with skin', 'vanilla extract', 'yogurt, greek, plain, nonfat']:
         my_recipe.append(250)
     else:
         my_recipe.append(0)
+"""
 
-exec(my_recipe, recipes, ingredients, 5, 100)
+ingr = {"apples, raw, with skin": 250, 'vanilla extract': 250, 'yogurt, greek, plain, nonfat': 250}
+my_recipe = ingredients_to_vector(ingr) 
+#print(my_recipe)
+recommend(my_recipe, recipes, ingredients, 5, 200)

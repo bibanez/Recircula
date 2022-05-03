@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from typing import List
 from pydantic import BaseModel
+from recircula import recommend, ingredients_to_vector
 
 class IngredientList(BaseModel):
+    servings: float
+    maxResults: int
     ingredients: List[Ingredient]
 
 class Ingredient(BaseModel):
@@ -10,10 +13,10 @@ class Ingredient(BaseModel):
     weight: float
 
 
-with open('ingredients.json') as file:
+with open('../Sources/ingredients.json') as file:
     _ingredients = json.load(file)
 
-with open('recipes.json') as file:
+with open('../Sources/recipes.json') as file:
     _recipes = json.load(file)
 
 app = FastAPI()
@@ -31,5 +34,9 @@ async def recipe(recipe_id: int):
     return _recipes[recipe_id]
 
 @app.put("/recommendation")
-async def recommendation(ingredients: IngredientList):
+async def recommendation(ingr: IngredientList | None = None):
+    if ingr:
+        my_recipe = ingredients_to_vector(ingr["ingredients"])
+        return recommend(my_recipe, _recipes, _ingredients, ingr["maxResults"], ingr["servings"])
 
+    return None
