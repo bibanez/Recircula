@@ -24,6 +24,10 @@ with open('../Sources/pretty_recipes.json') as file:
 
 app = FastAPI()
 
+@app.get("/")
+async def welcome():
+    return {"message": "Survival Recipes - Hackathon Recircula 2022"}
+
 @app.get("/ingredients")
 async def ingredients():
     return _ingredients
