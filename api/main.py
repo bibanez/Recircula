@@ -13,7 +13,6 @@ class IngredientList(BaseModel):
     maxResults: int
     ingredients: List[Ingredient]
 
-
 with open('../Sources/ingredients.json') as file:
     _ingredients = json.load(file)
 
