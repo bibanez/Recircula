@@ -1,20 +1,27 @@
 from fastapi import FastAPI
 from typing import List
 from pydantic import BaseModel
-
-class IngredientList(BaseModel):
-    ingredients: List[Ingredient]
+from recircula import recommend, ingredients_to_vector
+import json
 
 class Ingredient(BaseModel):
     name: str
     weight: float
 
+class IngredientList(BaseModel):
+    servings: float
+    maxResults: int
+    ingredients: List[Ingredient]
 
-with open('ingredients.json') as file:
+
+with open('../Sources/ingredients.json') as file:
     _ingredients = json.load(file)
 
-with open('recipes.json') as file:
+with open('../Sources/recipes.json') as file:
     _recipes = json.load(file)
+
+with open('../Sources/pretty_recipes.json') as file:
+    _pretty_recipes = json.load(file)
 
 app = FastAPI()
 
@@ -24,12 +31,22 @@ async def ingredients():
 
 @app.get("/recipes")
 async def recipes(page: int = 1, maxResults: int = 20):
-    return _recipes[(page-1)*maxResults:page*maxResults]
+    i = (page-1)*maxResults
+    j = page*maxResults
+    res = {}
+    for x in list(_pretty_recipes)[i:j]:
+        res[x] = _pretty_recipes[x]
+    
+    return res
 
 @app.get("/recipe/{recipe_id}")
-async def recipe(recipe_id: int):
-    return _recipes[recipe_id]
+async def recipe(recipe_id: str):
+    return _pretty_recipes[recipe_id]
 
 @app.put("/recommendation")
-async def recommendation(ingredients: IngredientList):
+async def recommendation(ingr: IngredientList | None = None):
+    if ingr:
+        my_recipe = ingredients_to_vector(ingr["ingredients"])
+        return recommend(my_recipe, _recipes, _ingredients, ingr["maxResults"], ingr["servings"])
 
+    return None

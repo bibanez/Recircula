@@ -3,7 +3,7 @@ import re
 import json
 from typing import List, Dict
 
-path = "recipes_with_nutritional_info.json"
+path = "../Sources/recipes_with_nutritional_info.json"
 
 with open(path) as file:
     data = json.load(file)
@@ -27,11 +27,12 @@ for i in range(len(data)):
 
 ingredients.sort()
 
-save_path = "ingredients.json"
+save_path = "../Sources/ingredients.json"
 with open(save_path, 'w') as file:
     json.dump(ingredients, file)
 
 recipes = [[] for i in range(len(data))]
+pretty_recipes = {}
 
 for i in range(len(data)):
     recipe_ingr = []
@@ -51,7 +52,21 @@ for i in range(len(data)):
     recipes[i].append(data[i]['title'])
     recipes[i].append(total_weight)
 
-save_path = "recipes.json"
+    pretty_recipes[data[i]['id']] = {
+        "title": data[i]['title'],
+        "url": data[i]['url'],
+        "ingredients": data[i]['ingredients'],
+    }
+    for j in range(len(data[i]['weight_per_ingr'])):
+        pretty_recipes[data[i]['id']]['ingredients'][j]['weight'] = data[i]['weight_per_ingr'][j]
+
+
+
+save_path = "../Sources/recipes.json"
 with open(save_path, 'w', encoding='utf-8') as file:
     print("Generating json...")
     json.dump(recipes, file, ensure_ascii=False, indent=4)
+
+save_path = "../Sources/pretty_recipes.json"
+with open(save_path, 'w', encoding='utf-8') as file:
+    json.dump(pretty_recipes, file, ensure_ascii=False, indent=4)
