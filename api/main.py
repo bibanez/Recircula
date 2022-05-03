@@ -1,7 +1,13 @@
 from fastapi import FastAPI
+from typing import List
 from pydantic import BaseModel
 
-class Ingredients(BaseModel):
+class IngredientList(BaseModel):
+    ingredients: List[Ingredient]
+
+class Ingredient(BaseModel):
+    name: str
+    weight: float
 
 
 with open('ingredients.json') as file:
@@ -24,4 +30,6 @@ async def recipes(page: int = 1, maxResults: int = 20):
 async def recipe(recipe_id: int):
     return _recipes[recipe_id]
 
-@app.put("/recommendation
+@app.put("/recommendation")
+async def recommendation(ingredients: IngredientList):
+
